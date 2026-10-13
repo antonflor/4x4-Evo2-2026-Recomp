@@ -14,8 +14,8 @@ The renderer here is a fork of that project's **evo2026** Direct3D 9 renderer (i
 | True widescreen (Hor+) + HUD at the edges | ✅ works in races |
 | Foliage alpha edges, blend modes | ✅ fixed (setAlphaRef / setSrcBlend / setDestBlend) |
 | Widescreen menu layouts (backgrounds are stretched for now) | ⏳ planned |
-| HD texture pack (RAW/ACT + TIF/TGA) | ⏳ planned |
-| All-in-one Windows installer | ⏳ planned |
+| HD texture pack | ✅ starter pack: UI, trucks, drivers, Construction Junction (full pack: `tools/make_texture_pack.bat` on a GPU) |
+| All-in-one Windows installer | ✅ Inno Setup (`installer/`) |
 
 ### Widescreen
 

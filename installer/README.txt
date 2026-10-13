@@ -54,6 +54,10 @@ starts, so they may briefly switch your monitor's mode. That's normal.
 
 MORE HD TEXTURES
 ----------------
+The pack in this version covers the menus and UI, the trucks and drivers,
+and the Construction Junction track (1,671 textures). The other tracks use
+the original textures, still drawn at full resolution.
+
 To (re)build the full pack on an NVIDIA GPU, run evo2026\tools\make_texture_pack.bat
 (needs Python 3 with torch + pillow; the script explains). New PNGs in
 textures\ load automatically the next time the game starts.
