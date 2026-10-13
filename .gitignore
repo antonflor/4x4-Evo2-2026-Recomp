@@ -11,3 +11,5 @@ __pycache__/
 *.cab
 4x42.exe
 game/
+installer/payload/
+installer/output/
