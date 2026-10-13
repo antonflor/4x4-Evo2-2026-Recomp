@@ -39,9 +39,11 @@ def read_pod(path):
         yield name, data[offset:offset + size]
 
 
-def decode_palette_alpha_tif(data):
-    """4x4 Evo 2 truck/driver skins are TIFFs Pillow can't read: palette colour (photometric 3)
-    with 2 samples per pixel (index, alpha), uncompressed. Decode those by hand."""
+def decode_tif(data):
+    """Decode the uncompressed TIFFs 4x4 Evo 2 uses, keeping their alpha. Pillow gets two of
+    the layouts wrong: palette colour with an alpha sample (index, alpha) is either rejected or
+    opened as plain "P", and RGB with a 4th "unspecified" extra sample is opened as "RGB". In both
+    cases the alpha (tree and bush cut-outs, the minimap compass ring, ...) is lost."""
     order = "<" if data[:2] == b"II" else ">"
     ifd = struct.unpack_from(order + "I", data, 4)[0]
     tags = {}
@@ -50,27 +52,54 @@ def decode_palette_alpha_tif(data):
         if typ == 3 and count == 1:
             value = struct.unpack_from(order + "H", data, ifd + 2 + i * 12 + 8)[0]
         tags[tag] = (typ, count, value)
-    width, height = tags[256][2], tags[257][2]
-    if tags.get(262, (0, 0, 0))[2] != 3 or tags.get(277, (0, 0, 1))[2] != 2 or tags.get(259, (0, 0, 1))[2] != 1:
+    get = lambda tag, default: tags[tag][2] if tag in tags else default
+    width, height = get(256, 0), get(257, 0)
+    photometric, spp, compression = get(262, -1), get(277, 1), get(259, 1)
+    bits = tags.get(258, (3, 1, 8))
+    if bits[1] > 1:
+        bits_values = struct.unpack_from(order + "%dH" % bits[1], data, bits[2]) if bits[1] > 2 else \
+            struct.unpack_from(order + "2H", struct.pack(order + "I", bits[2]))
+    else:
+        bits_values = (bits[2],)
+    if compression != 1 or any(v != 8 for v in bits_values) or get(284, 1) != 1:
         raise ValueError("unsupported TIFF layout")
     typ, count, value = tags[273]
-    offsets = [value] if count == 1 else list(struct.unpack_from(order + "%dI" % count, data, value))
-    pixels = b"".join(data[o:o + width * height * 2] for o in offsets)[:width * height * 2]
-    cmap = struct.unpack_from(order + "768H", data, tags[320][2])
-    palette = bytes(v >> 8 for i in range(256) for v in (cmap[i], cmap[256 + i], cmap[512 + i]))
-    img = Image.frombytes("P", (width, height), pixels[0::2])
-    img.putpalette(palette)
-    img = img.convert("RGBA")
-    img.putalpha(Image.frombytes("L", (width, height), pixels[1::2]))
-    return img
+    if count == 1:
+        offsets = [value]
+    else:
+        fmt = "%dI" % count if typ == 4 else "%dH" % count
+        offsets = list(struct.unpack_from(order + fmt, data, value))
+    typ, count, value = tags[279]
+    if count == 1:
+        lengths = [value]
+    else:
+        fmt = "%dI" % count if typ == 4 else "%dH" % count
+        lengths = list(struct.unpack_from(order + fmt, data, value))
+    need = width * height * spp
+    pixels = b"".join(data[o:o + n] for o, n in zip(offsets, lengths))[:need]
+    if len(pixels) < need:
+        raise ValueError("truncated TIFF")
+    if photometric == 3 and spp in (1, 2):
+        cmap = struct.unpack_from(order + "768H", data, tags[320][2])
+        palette = bytes(v >> 8 for i in range(256) for v in (cmap[i], cmap[256 + i], cmap[512 + i]))
+        img = Image.frombytes("P", (width, height), pixels[0::spp])
+        img.putpalette(palette)
+        img = img.convert("RGBA")
+        if spp == 2:
+            img.putalpha(Image.frombytes("L", (width, height), pixels[1::2]))
+        return img
+    if photometric == 2 and spp == 4:
+        return Image.frombytes("RGBA", (width, height), pixels)
+    if photometric == 2 and spp == 3:
+        return Image.frombytes("RGB", (width, height), pixels).convert("RGBA")
+    raise ValueError("unsupported TIFF layout")
 
 
 def load_rgba(blob):
-    # Palette+alpha TIFFs first: Pillow opens some of them (those with an ExtraSamples tag)
-    # as plain "P" and silently drops the alpha, which turns tree and bush cut-outs solid.
+    # Our own TIFF decoder first (see decode_tif); Pillow for anything else (compressed TIFF, TGA).
     if blob[:4] in (b"II*\0", b"MM\0*"):
         try:
-            return decode_palette_alpha_tif(blob)
+            return decode_tif(blob)
         except (ValueError, KeyError, struct.error):
             pass
     return Image.open(io.BytesIO(blob)).convert("RGBA")
