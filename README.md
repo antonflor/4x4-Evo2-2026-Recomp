@@ -11,12 +11,19 @@ The renderer here is a fork of that project's **evo2026** Direct3D 9 renderer (i
 | | |
 |---|---|
 | Boots, menus, races at native resolution | ✅ works (unmodified Evo 1 renderer, first test) |
-| True widescreen (Hor+) + HUD at the edges | 🔧 in progress, Evo 2 addresses being mapped |
-| Foliage alpha edges, blend modes, detail texture stage | 🔧 in progress |
+| True widescreen (Hor+) + HUD at the edges | ✅ works in races |
+| Foliage alpha edges, blend modes | ✅ fixed (setAlphaRef / setSrcBlend / setDestBlend) |
+| Widescreen menu layouts (backgrounds are stretched for now) | ⏳ planned |
 | HD texture pack (RAW/ACT + TIF/TGA) | ⏳ planned |
 | All-in-one Windows installer | ⏳ planned |
 
-![Race start at 1080p (4:3 for now)](docs/screenshots/race-start-1080p.jpg)
+### Widescreen
+
+Top: 4:3 with side bars. Bottom: true 16:9, with more of the track at the sides and the HUD at the screen edges.
+
+![Before/after widescreen](docs/screenshots/widescreen-before-after.jpg)
+
+![Racing at 1080p in widescreen](docs/screenshots/race-widescreen.jpg)
 
 ## Layout
 

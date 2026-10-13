@@ -1,13 +1,14 @@
 /*
-evo2026 — in-memory hooks into 4x4.exe (Build 57) for true widescreen. See EvoHooks.hxx.
+evo2026 — in-memory hooks into 4x42.exe (4x4 Evo 2, Build 139) for true widescreen. See EvoHooks.hxx.
 
-Engine facts (from disassembly of Build 57):
-  0x481720  viewport(f32 x0, f32 y0, f32 x1, f32 y1)  stores rect at 0xae25a0.., centre and
-            half sizes at 0xae25b0..0xae25bc; projection is  sx = x'/z * halfW + cx.
-  0x4810a0  set zoom (raw)       -> [0xae25fc] = v
-  0x4810b0  set zoom from FOV    -> [0xae25fc] = v / 18.0f   (0x5c9a79)
-  0x481100  camera matrix setup: horizontal column scaled by zoom, vertical column by
-            zoom * (viewport width / viewport height).
+Engine facts (from disassembly of Build 139; Evo 1 Build 57 addresses in brackets):
+  0x4969b0  viewport(f32 x0, f32 y0, f32 x1, f32 y1) [0x481720]  stores rect at 0xaa843c..,
+            half sizes at 0xaa844c/50, centre at 0xaa8454/58; projection is  sx = x'/z * halfW + cx.
+            (If [0xaae17c] == 0 the coordinates are first multiplied by the scale at 0xaa84b4.)
+  0x495e10  set zoom (raw)       -> [0xaa8498] = v              [0x4810a0]
+  0x495e20  set zoom from FOV    -> [0xaa8498] = v / 18.0f (0x63b193)  [0x4810b0]
+  0x495f30 / 0x4963b0  camera matrix setup: horizontal column scaled by zoom (0xaa849c),
+            vertical column by zoom * (viewport width / viewport height) (0xaa84a0).
   => widen the viewport by k and divide zoom by k: horizontal FOV grows by k, vertical stays.
 
 */
@@ -33,8 +34,8 @@ namespace Evo::Hooks
 
     typedef void(__cdecl* VIEWPORTFN)(f32, f32, f32, f32);
 
-    static f32* const Zoom = (f32*)0x00ae25fc;
-    static const f32* const FovDivisor = (const f32*)0x005c9a79;
+    static f32* const Zoom = (f32*)0x00aa8498;
+    static const f32* const FovDivisor = (const f32*)0x0063b193;
 
     static BOOL Matches(const u32 address, const u8* bytes, const u32 length)
     {
@@ -111,27 +112,31 @@ namespace Evo::Hooks
         if (H.Tried) { return H.Installed; }
         H.Tried = TRUE;
 
-        static const u8 viewport[] = { 0x57, 0x83, 0xEC, 0x08, 0x83, 0x3D, 0xF4, 0x80, 0xAE, 0x00, 0x00 };
-        static const u8 zoomRaw[] = { 0x8B, 0x44, 0x24, 0x04, 0xA3, 0xFC, 0x25, 0xAE, 0x00, 0xC3 };
-        static const u8 zoomFov[] = { 0xD9, 0x44, 0x24, 0x04, 0xD8, 0x35, 0x79, 0x9A, 0x5C, 0x00, 0xD9, 0x1D, 0xFC, 0x25, 0xAE, 0x00, 0xC3 };
+        // viewport: sub esp,8 / cmp dword [0xaae17c],0 (10 bytes, position independent);
+        // the je that follows stays in place and the gateway jumps back to it.
+        static const u8 viewport[] = { 0x83, 0xEC, 0x08, 0x83, 0x3D, 0x7C, 0xE1, 0xAA, 0x00, 0x00 };
+        static const u8 viewportNext[] = { 0x0F, 0x84, 0xC4, 0x00, 0x00, 0x00 };
+        static const u8 zoomRaw[] = { 0x8B, 0x44, 0x24, 0x04, 0xA3, 0x98, 0x84, 0xAA, 0x00, 0xC3 };
+        static const u8 zoomFov[] = { 0xD9, 0x44, 0x24, 0x04, 0xD8, 0x35, 0x93, 0xB1, 0x63, 0x00, 0xD9, 0x1D, 0x98, 0x84, 0xAA, 0x00, 0xC3 };
 
         // The exe has a fixed image base (no relocation), so these addresses are stable;
         // anything else (another build/patch) fails the byte check and we stay 4:3.
         if (GetModuleHandleA(NULL) != (HMODULE)0x00400000
-            || !Matches(0x481720, viewport, sizeof(viewport))
-            || !Matches(0x4810a0, zoomRaw, sizeof(zoomRaw))
-            || !Matches(0x4810b0, zoomFov, sizeof(zoomFov)))
+            || !Matches(0x4969b0, viewport, sizeof(viewport))
+            || !Matches(0x4969b0 + sizeof(viewport), viewportNext, sizeof(viewportNext))
+            || !Matches(0x495e10, zoomRaw, sizeof(zoomRaw))
+            || !Matches(0x495e20, zoomFov, sizeof(zoomFov)))
         {
-            EVO_TRACE("evo2026 hooks: 4x4.exe is not Build 57 as expected - widescreen disabled");
+            EVO_TRACE("evo2026 hooks: 4x42.exe is not 4x4 Evo 2 Build 139 as expected - widescreen disabled");
             return FALSE;
         }
 
-        H.ViewportGateway = MakeGateway(0x481720, sizeof(viewport));
+        H.ViewportGateway = MakeGateway(0x4969b0, sizeof(viewport));
         if (H.ViewportGateway == NULL) { return FALSE; }
 
-        if (!WriteJump(0x481720, (const void*)&ViewportHook, sizeof(viewport))) { return FALSE; }
-        WriteJump(0x4810a0, (const void*)&SetZoomRawHook, sizeof(zoomRaw));
-        WriteJump(0x4810b0, (const void*)&SetZoomFovHook, sizeof(zoomFov));
+        if (!WriteJump(0x4969b0, (const void*)&ViewportHook, sizeof(viewport))) { return FALSE; }
+        WriteJump(0x495e10, (const void*)&SetZoomRawHook, sizeof(zoomRaw));
+        WriteJump(0x495e20, (const void*)&SetZoomFovHook, sizeof(zoomFov));
 
         H.Installed = TRUE;
         EVO_TRACE("evo2026 hooks: installed");
