@@ -574,6 +574,41 @@ namespace Renderer::Module
         return TRUE;
     }
 
+    // 4x4 Evo 2 additions (same argument encodings as the original tridx8.dll)
+    extern "C" u32 SetAlphaRef(const u32 value)
+    {
+        EVO_TRACE("SetAlphaRef");
+        if (State.DX.DirectX.Device != NULL) { DX::SetRendererState(D3DRENDERSTATETYPE::D3DRS_ALPHAREF, value & 0xff); }
+        return TRUE;
+    }
+
+    extern "C" u32 SetSrcBlend(const u32 value)
+    {
+        EVO_TRACE("SetSrcBlend");
+        switch (value)
+        {
+        case 0: { State.Blend.SrcBlend = D3DBLEND::D3DBLEND_SRCALPHA; break; }
+        case 1: { State.Blend.SrcBlend = D3DBLEND::D3DBLEND_ONE; break; }
+        case 2: { State.Blend.SrcBlend = D3DBLEND::D3DBLEND_ZERO; break; }
+        default: { return FALSE; }
+        }
+        return TRUE;
+    }
+
+    extern "C" u32 SetDestBlend(const u32 value)
+    {
+        EVO_TRACE("SetDestBlend");
+        switch (value)
+        {
+        case 0: { State.Blend.DestBlend = D3DBLEND::D3DBLEND_INVSRCALPHA; break; }
+        case 1: { State.Blend.DestBlend = D3DBLEND::D3DBLEND_ONE; break; }
+        case 2: { State.Blend.DestBlend = D3DBLEND::D3DBLEND_SRCCOLOR; break; }
+        case 3: { State.Blend.DestBlend = D3DBLEND::D3DBLEND_INVSRCCOLOR; break; }
+        case 4: { State.Blend.DestBlend = D3DBLEND::D3DBLEND_ZERO; break; }
+        }
+        return TRUE;
+    }
+
     extern "C" u32 Sync(void) {
         EVO_TRACE("Sync"); return TRUE; } // NOTE: Not being called by the application.
 

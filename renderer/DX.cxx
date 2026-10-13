@@ -249,30 +249,10 @@ namespace DX
 
     void SelectRendererMode(const RendererMode mode)
     {
-        //SetRendererState(D3DRENDERSTATETYPE::D3DRS_SRCBLEND, State.DX.Mode.Blend.SourceBlendMode);
-        //SetRendererState(D3DRENDERSTATETYPE::D3DRS_DESTBLEND, State.DX.Mode.Blend.DestinationBlendMode);
-
-        SetRendererState(D3DRENDERSTATETYPE::D3DRS_SRCBLEND,
-            (mode & RendererMode::U0x20) == RendererMode::None ? D3DBLEND::D3DBLEND_ONE : D3DBLEND::D3DBLEND_SRCALPHA);
-
-        if (*State.InitializeArguments.BlendMode != State.DX.Mode.BlendMode)
-        {
-            State.DX.Mode.BlendMode = *State.InitializeArguments.BlendMode;
-
-            switch (State.DX.Mode.BlendMode)
-            {
-            case RendererBlendMode::OneMinusSourceAlpha: { SetRendererState(D3DRENDERSTATETYPE::D3DRS_DESTBLEND, D3DBLEND::D3DBLEND_INVSRCALPHA); break; }
-            case RendererBlendMode::One: { SetRendererState(D3DRENDERSTATETYPE::D3DRS_DESTBLEND, D3DBLEND::D3DBLEND_ONE); break; }
-            case RendererBlendMode::SourceColor: { SetRendererState(D3DRENDERSTATETYPE::D3DRS_DESTBLEND, D3DBLEND::D3DBLEND_SRCCOLOR); break; }
-            case RendererBlendMode::OneMinusSourceColor: { SetRendererState(D3DRENDERSTATETYPE::D3DRS_DESTBLEND, D3DBLEND::D3DBLEND_INVSRCCOLOR); break; }
-            }
-        }
-
-        if (((mode & RendererMode::U0x20) != RendererMode::None)
-            && *State.InitializeArguments.BlendMode == RendererBlendMode::SourceColor)
-        {
-            SetRendererState(D3DRENDERSTATETYPE::D3DRS_SRCBLEND, D3DBLEND::D3DBLEND_ZERO);
-        }
+        // 4x4 Evo 2 (as the original tridx8.dll): the blend factors always come from
+        // APIDLLsetSrcBlend / APIDLLsetDestBlend, regardless of the mode bits.
+        SetRendererState(D3DRENDERSTATETYPE::D3DRS_SRCBLEND, State.Blend.SrcBlend);
+        SetRendererState(D3DRENDERSTATETYPE::D3DRS_DESTBLEND, State.Blend.DestBlend);
 
         if (((State.DX.Mode.Mode ^ mode) & RendererMode::U0x1) != RendererMode::None)
         {

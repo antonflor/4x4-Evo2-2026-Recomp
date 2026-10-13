@@ -56,3 +56,6 @@ EXPORTS
     APIDLLunlockTexture = UnlockTexture                     @53
     APIDLLupdateTexture = UpdateTexture                     @54
     APIDLLupdateTextureBGRA = UpdateTextureBGRA             @55
+    APIDLLsetAlphaRef = SetAlphaRef
+    APIDLLsetSrcBlend = SetSrcBlend
+    APIDLLsetDestBlend = SetDestBlend

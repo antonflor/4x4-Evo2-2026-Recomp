@@ -78,6 +78,9 @@ namespace Renderers::Modules
     extern "C" u32 CDECLAPI SelectVideoMode2(const u32, const u32, const u32, u32**);
     extern "C" u32 CDECLAPI SelectVideoModeX(const u32, const u32, const u32, const u32);
     extern "C" u32 CDECLAPI SetColorTable(u8*, u16*);
+    extern "C" u32 CDECLAPI SetAlphaRef(const u32);
+    extern "C" u32 CDECLAPI SetSrcBlend(const u32);
+    extern "C" u32 CDECLAPI SetDestBlend(const u32);
     extern "C" u32 CDECLAPI SetFog(const f32, const f32, const f32, const f32, const f32);
     extern "C" u32 CDECLAPI SetFogColor(const u32, const u32, const u32);
     extern "C" u32 CDECLAPI SetMipMapLevel(void);

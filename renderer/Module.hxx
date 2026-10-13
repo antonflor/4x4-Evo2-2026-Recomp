@@ -64,6 +64,14 @@ namespace Renderer::Module
             u32 BitsPerPixel = GRAPHICS_BITS_PER_PIXEL_32;
         } Window;
 
+        // 4x4 Evo 2: blend factors and alpha reference set by APIDLLsetSrcBlend/setDestBlend/setAlphaRef.
+        // Defaults match the original tridx8.dll (SRCALPHA / INVSRCALPHA).
+        struct
+        {
+            u32 SrcBlend = 5;  // D3DBLEND_SRCALPHA
+            u32 DestBlend = 6; // D3DBLEND_INVSRCALPHA
+        } Blend;
+
         struct
         {
             u32** Pixels;
