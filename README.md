@@ -29,7 +29,7 @@ Top: 4:3 with side bars. Bottom: true 16:9, with more of the track at the sides 
 
 - `renderer/`: the Direct3D 9 renderer (builds `evo2026.dll`, installed as `tridx8.dll`)
 - `tools/is5_extract.py`: extracts the game files from the disc's InstallShield 5 `data1.cab`
-- `tools/pod_textures.py`, `tools/upscale_textures.py`: texture export and AI upscaling
+- `tools/pod_textures.py`, `tools/upscale_textures.py`, `tools/optimize_textures.py`: texture export, AI upscaling, and shrinking the pack (opaque textures to JPEG)
 - `docs/FINDINGS.md`: reverse-engineering notes for the Evo 2 exe
 
 ## Build

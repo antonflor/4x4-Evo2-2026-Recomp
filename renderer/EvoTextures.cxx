@@ -9,6 +9,7 @@ using namespace Mathematics;
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_ONLY_PNG
+#define STBI_ONLY_JPEG
 #define STBI_NO_STDIO_DEFAULTS
 #include "stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -31,7 +32,8 @@ namespace Evo::Textures
         u32 Dump = 0;
         u32 Replace = 1;
 
-        // lower-case file stem -> full path, for every PNG in the textures folder
+        // lower-case file stem -> full path, for every PNG/JPEG in the textures folder
+        // (PNG wins if both exist: JPEG is the space-saving form of opaque textures)
         std::unordered_map<std::string, std::string> Files;
 
         // key -> loaded replacement (holds one reference)
@@ -102,11 +104,13 @@ namespace Evo::Textures
 
             std::string ext = stem.substr(dot + 1);
             for (auto& c : ext) { c = (char)tolower((unsigned char)c); }
-            if (ext != "png") { continue; }
+            const BOOL png = ext == "png";
+            if (!png && ext != "jpg" && ext != "jpeg") { continue; }
 
             stem.erase(dot);
             for (auto& c : stem) { c = (char)tolower((unsigned char)c); }
 
+            if (!png && Store.Files.count(stem) != 0) { continue; }
             Store.Files[stem] = path;
         } while (FindNextFileA(h, &fd));
 
@@ -180,7 +184,7 @@ namespace Evo::Textures
             return NULL;
         }
 
-        // Level 0 from the PNG, then box-filtered mips.
+        // Level 0 from the image (PNG or JPEG; JPEG has no alpha, so it loads opaque), then box-filtered mips.
         u32 lw = (u32)w, lh = (u32)h;
         u32* level = (u32*)malloc((size_t)lw * lh * 4);
 

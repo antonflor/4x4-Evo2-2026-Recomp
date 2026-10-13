@@ -22,11 +22,14 @@ if not exist "%GAME%\4x42.exe" (
 
 python --version >nul 2>&1 || (echo Python 3 is not on PATH. & exit /b 1)
 
-echo [1/2] Exporting textures from the .POD archives...
+echo [1/3] Exporting textures from the .POD archives...
 python "%TOOLS%pod_textures.py" "%GAME%" "%GAME%\textures_src" || exit /b 1
 
-echo [2/2] Upscaling (this is the long part; a recent GeForce does it in minutes)...
+echo [2/3] Upscaling (this is the long part; a recent GeForce does it in minutes)...
 python "%TOOLS%upscale_textures.py" "%GAME%\textures_src" "%GAME%\textures" || exit /b 1
+
+echo [3/3] Shrinking: opaque textures to JPEG, transparent ones stay PNG...
+python "%TOOLS%optimize_textures.py" "%GAME%\textures" || exit /b 1
 
 echo.
 echo Done. Start the game: the new textures load automatically.
