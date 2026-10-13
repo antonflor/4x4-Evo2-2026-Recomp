@@ -166,13 +166,18 @@ def upscale_rgb(net, rgb, device, half, tile_wrap, pad):
 
 
 def upscale_alpha(alpha, size, tile_wrap):
-    """Resize alpha separately; binary cut-out masks are kept crisp."""
+    """Resize alpha separately. Masks made of a few fixed levels (cut-outs such as 0/255, or
+    4x4 Evo 2's foliage with 0/240/255) are snapped back to those levels after a smooth
+    resize, so edges get smoother but the game's alpha tests still see the same values."""
     unique = np.unique(alpha)
     img = Image.fromarray(alpha, "L")
     up = np.asarray(img.resize(size, Image.BICUBIC))
-    if len(unique) <= 2:  # cut-out mask: smooth the edge, then re-binarise
-        lo, hi = (int(unique[0]), int(unique[-1])) if len(unique) == 2 else (0, int(unique[0]))
-        up = np.where(up >= (lo + hi) / 2, hi, lo).astype(np.uint8)
+    if len(unique) <= 4:
+        levels = unique.astype(np.int16)
+        if len(levels) == 1:
+            return np.full(up.shape, levels[0], np.uint8)
+        nearest = np.abs(up.astype(np.int16)[..., None] - levels[None, None, :]).argmin(axis=-1)
+        up = levels[nearest].astype(np.uint8)
     return up
 
 

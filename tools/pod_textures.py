@@ -66,10 +66,14 @@ def decode_palette_alpha_tif(data):
 
 
 def load_rgba(blob):
-    try:
-        return Image.open(io.BytesIO(blob)).convert("RGBA")
-    except Exception:
-        return decode_palette_alpha_tif(blob)
+    # Palette+alpha TIFFs first: Pillow opens some of them (those with an ExtraSamples tag)
+    # as plain "P" and silently drops the alpha, which turns tree and bush cut-outs solid.
+    if blob[:4] in (b"II*\0", b"MM\0*"):
+        try:
+            return decode_palette_alpha_tif(blob)
+        except (ValueError, KeyError, struct.error):
+            pass
+    return Image.open(io.BytesIO(blob)).convert("RGBA")
 
 
 def stem(name):
