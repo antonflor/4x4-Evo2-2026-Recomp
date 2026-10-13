@@ -1,0 +1,13 @@
+build/
+*.o
+__pycache__/
+# never commit game files from the disc
+*.POD
+*.pod
+*.bik
+*.bin
+*.cue
+*.iso
+*.cab
+4x42.exe
+game/
