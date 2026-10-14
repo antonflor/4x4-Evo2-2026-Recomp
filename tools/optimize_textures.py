@@ -64,7 +64,10 @@ def main():
                     after += buf.tell()
                     converted += 1
                     continue
-                img.convert("RGB").save(dst, "JPEG", quality=args.quality, subsampling=0, optimize=True)
+                try:
+                    img.convert("RGB").save(dst, "JPEG", quality=args.quality, subsampling=0, optimize=True)
+                except OSError:  # libjpeg's optimizer fails on some tiny images; save without it
+                    img.convert("RGB").save(dst, "JPEG", quality=args.quality, subsampling=0)
                 width, height = img.size
             with Image.open(dst) as check:
                 check.load()
