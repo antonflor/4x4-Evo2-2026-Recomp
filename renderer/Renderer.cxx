@@ -28,6 +28,7 @@ SOFTWARE.
 #include "Quit.hxx"
 
 #include <math.h>
+#include <stdio.h>
 
 using namespace Mathematics;
 using namespace Renderers::Modules;
@@ -618,6 +619,24 @@ namespace Renderer::Module
         if (State.DX.DirectX.Device != NULL)
         {
             DX::DXC(State.DX.DirectX.Device->Present(NULL, NULL, NULL, NULL), "Unable to present back buffer.");
+        }
+
+        // LogFps=1 in evo2026.ini: write the frame rate once a second to system\evo2026-fps.log
+        static s32 logFps = -1;
+        if (logFps < 0) { logFps = (s32)Evo::ReadSetting("LogFps", 0); }
+        if (logFps)
+        {
+            static u32 frames = 0, start = 0;
+            static FILE* log = NULL;
+            const u32 now = GetTickCount();
+            if (start == 0) { start = now; }
+            frames++;
+            if (now - start >= 1000)
+            {
+                if (log == NULL) { log = fopen(".\\system\\evo2026-fps.log", "w"); }
+                if (log != NULL) { fprintf(log, "%.1f fps\n", frames * 1000.0 / (now - start)); fflush(log); }
+                frames = 0; start = now;
+            }
         }
 
         return TRUE;

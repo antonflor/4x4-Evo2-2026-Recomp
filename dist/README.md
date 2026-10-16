@@ -51,6 +51,7 @@ The settings live in `system\evo2026.ini`, section `[evo2026]`. (The game rewrit
 | `ReplaceTextures` | `1` | Load HD textures from `textures\` |
 | `DumpTextures` | `0` | Save every texture the game uploads to `textures_dump\` |
 | `Trace` | `0` | Write a renderer call log to `system\evo2026.log` |
+| `LogFps` | `0` | Write the frame rate once a second to `system\evo2026-fps.log` |
 
 Game-side settings are in `system\METAL.INI`. Keep `gamePIXX=640`, `gamePIXY=480` and `gameBPP=32` under `[Graphics]`. `useRedBookAudio=0` under `[Game]` plays the music from the game files ("Wave" in the options), which you need when there's no disc in the drive.
 
