@@ -1,9 +1,9 @@
 4x4 Evo 2 (Build 139) on modern Windows: native resolution, true widescreen and a full HD texture pack, in one installer.
 
-![Before and after](https://github.com/antonflor/4x4-Evo2-2026-Recomp/releases/download/v1.0.0/evo2026_before_after.png)
+![Before and after](https://github.com/antonflor/4x4-Evo2-2026-Recomp/blob/main/docs/screenshots/widescreen-before-after.jpg?raw=true)
 
 ## Install
-Download **`4x4Evo2-2026-Setup.exe` and all `4x4Evo2-2026-Setup-N.bin` files** (SLICES of them) into the same folder and run the exe. The default folder is `C:\Games\4x4 Evo 2`. You don't need a disc or a patch.
+Download **`4x4Evo2-2026-Setup.exe` and all `4x4Evo2-2026-Setup-N.bin` files** (74 of them) into the same folder and run the exe. The default folder is `C:\Games\4x4 Evo 2`. You don't need a disc or a patch.
 
 The "4x4 Setup Options" screen appears on every launch, as in the original. Press Enter.
 
