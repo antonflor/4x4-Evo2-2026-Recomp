@@ -23,7 +23,7 @@ mkdir -p "$OUT/textures"
 [ -n "$TEX" ] && cp "$TEX"/*.png "$OUT/textures/"
 # evo2026 folder: read me, tools, licence, source
 E="$OUT/evo2026"; mkdir -p "$E/tools"
-cp "$REPO/installer/README.txt" "$E/README.txt"; sed -i 's/$/\r/' "$E/README.txt"
+cp "$REPO/installer/README.txt" "$E/README.txt"; sed -i 's/\r$//; s/$/\r/' "$E/README.txt"
 cp "$REPO/README.md" "$E/README.md"
 cp "$REPO/renderer/LICENSE.4x4e" "$E/LICENSE.4x4e.txt"
 cp "$REPO/tools/pod_textures.py" "$REPO/tools/upscale_textures.py" "$REPO/tools/make_texture_pack.bat" "$E/tools/"

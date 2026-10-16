@@ -54,10 +54,12 @@ starts, so they may briefly switch your monitor's mode. That's normal.
 
 MORE HD TEXTURES
 ----------------
-The pack in this version covers the menus and UI, the trucks and drivers,
-and the Construction Junction track (1,671 textures). The other tracks use
-the original textures, still drawn at full resolution.
+The textures\ folder holds all 30,502 of the game's textures, AI-upscaled 4x:
+every track, every truck and driver, the menus and the HUD. Opaque textures
+are high-quality JPEG; the ones with transparency (foliage, fences, HUD) are
+PNG.
 
-To (re)build the full pack on an NVIDIA GPU, run evo2026\tools\make_texture_pack.bat
-(needs Python 3 with torch + pillow; the script explains). New PNGs in
-textures\ load automatically the next time the game starts.
+To rebuild the pack yourself on an NVIDIA GPU, run
+evo2026\tools\make_texture_pack.bat (needs Python 3.12 with CUDA PyTorch and
+pillow; the script explains). New files in textures\ load automatically the
+next time the game starts.

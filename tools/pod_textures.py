@@ -105,6 +105,12 @@ def load_rgba(blob):
     return Image.open(io.BytesIO(blob)).convert("RGBA")
 
 
+# Textures the game uses as a canvas: it draws different pictures into a texture with this
+# name (e.g. every track's preview on the Setup Race screen goes into "notrack"), so a
+# name-only replacement would cover all of them with one image. Never export these.
+SKIP = {"notrack"}
+
+
 def stem(name):
     """Same naming rule as the renderer (EvoTextures.cxx Sanitize)."""
     base = name.replace("/", "\\").split("\\")[-1].rsplit(".", 1)[0]
@@ -133,6 +139,8 @@ def main():
 
         count = 0
         for key, parts in sorted(files.items()):
+            if key in SKIP:
+                continue
             rgba = parts.get("tif") or parts.get("tga")
             if rgba is not None and parts.get("raw") is None:
                 out = os.path.join(args.output, key + ".png")

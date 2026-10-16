@@ -110,6 +110,10 @@ namespace Evo::Textures
             stem.erase(dot);
             for (auto& c : stem) { c = (char)tolower((unsigned char)c); }
 
+            // Canvas textures: the game draws different pictures into these (every track's
+            // preview goes into "notrack"), so a replacement would hide them all.
+            if (stem == "notrack") { continue; }
+
             if (!png && Store.Files.count(stem) != 0) { continue; }
             Store.Files[stem] = path;
         } while (FindNextFileA(h, &fd));
