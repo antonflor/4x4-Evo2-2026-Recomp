@@ -9,7 +9,7 @@ The heart of it is **evo2026**, a drop-in Direct3D 9 renderer for the game. You 
 - native-resolution output (1080p, 1440p, 4K) in a borderless window
 - true widescreen (Hor+), with the race HUD moved to the screen edges
 - 16× anisotropic filtering, vsync
-- a full HD texture pack: all 30,502 of the game's textures, AI-upscaled 4×
+- a full HD texture pack: all 30,501 of the game's textures, AI-upscaled 4×
 - texture tools to export, upscale and pack the game's textures yourself
 
 Built on the open-source [4x4e](https://github.com/americusmaximus/4x4e) Direct3D 9 renderer (MIT).

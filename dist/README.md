@@ -77,7 +77,7 @@ PNG wins if both exist. JPEGs load opaque, so textures with transparency (foliag
 
 ### The release pack
 
-The `textures-hd-*.zip` files hold all 30,502 of the game's textures, AI-upscaled 4× (Real-ESRGAN general-x4v3): every track, every truck and driver, the menus and the HUD. Opaque textures are high-quality JPEG (quality 92, full colour resolution); the 1,300-odd with transparency are PNG. 1.36 GB in total, down from 3.9 GB as all-PNG.
+The `textures-hd-*.zip` files hold all 30,501 of the game's textures, AI-upscaled 4× (Real-ESRGAN general-x4v3): every track, every truck and driver, the menus and the HUD. Opaque textures are high-quality JPEG (quality 92, full colour resolution); the 1,300-odd with transparency are PNG. 1.36 GB in total, down from 3.9 GB as all-PNG.
 
 ### Rebuild it yourself
 

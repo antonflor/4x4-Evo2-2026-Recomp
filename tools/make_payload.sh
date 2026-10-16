@@ -20,12 +20,13 @@ cp "$REPO/installer/evo2026.ini" "$OUT/system/evo2026.ini"
 sed -i -e 's/^gameBPP=.*/gameBPP=32\r/' -e 's/^rendererDLLPath=.*/rendererDLLPath=tridx8.dll\r/' \
        -e 's/^useRedBookAudio=.*/useRedBookAudio=0\r/' "$OUT/system/METAL.INI"
 mkdir -p "$OUT/textures"
-[ -n "$TEX" ] && cp "$TEX"/*.png "$OUT/textures/"
+# PNG and JPEG replacements; never "notrack" (a canvas the game draws every track preview into)
+[ -n "$TEX" ] && find "$TEX" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' \) ! -iname 'notrack.*' -exec cp -t "$OUT/textures/" {} +
 # evo2026 folder: read me, tools, licence, source
 E="$OUT/evo2026"; mkdir -p "$E/tools"
 cp "$REPO/installer/README.txt" "$E/README.txt"; sed -i 's/\r$//; s/$/\r/' "$E/README.txt"
 cp "$REPO/README.md" "$E/README.md"
 cp "$REPO/renderer/LICENSE.4x4e" "$E/LICENSE.4x4e.txt"
-cp "$REPO/tools/pod_textures.py" "$REPO/tools/upscale_textures.py" "$REPO/tools/make_texture_pack.bat" "$E/tools/"
+cp "$REPO/tools/pod_textures.py" "$REPO/tools/upscale_textures.py" "$REPO/tools/optimize_textures.py" "$REPO/tools/make_texture_pack.bat" "$E/tools/"
 git -C "$REPO" archive --format=zip -o "$E/evo2026-source.zip" HEAD
 echo "payload ready: $OUT ($(du -sh "$OUT" | cut -f1))"

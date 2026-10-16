@@ -54,7 +54,7 @@ starts, so they may briefly switch your monitor's mode. That's normal.
 
 MORE HD TEXTURES
 ----------------
-The textures\ folder holds all 30,502 of the game's textures, AI-upscaled 4x:
+The textures\ folder holds all 30,501 of the game's textures, AI-upscaled 4x:
 every track, every truck and driver, the menus and the HUD. Opaque textures
 are high-quality JPEG; the ones with transparency (foliage, fences, HUD) are
 PNG.
