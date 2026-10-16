@@ -1,4 +1,4 @@
-# evo2026 renderer — cross-build a 32-bit Windows DLL with MinGW-w64
+# evo2026 renderer + controller bridge — cross-build 32-bit Windows DLLs with MinGW-w64
 CXX      = i686-w64-mingw32-g++
 WINDRES  = i686-w64-mingw32-windres
 CXXFLAGS = -std=c++20 -O2 -DNDEBUG -D_WINDOWS -D_USRDLL -D_CRT_SECURE_NO_WARNINGS -DUNICODE -D_UNICODE \
@@ -8,7 +8,14 @@ SRC      = $(wildcard renderer/*.cxx)
 OBJ      = $(patsubst renderer/%.cxx,build/%.o,$(SRC)) build/res.o
 OUT      = build/evo2026.dll
 
-all: $(OUT)
+INPUT    = build/dinput.dll
+
+all: $(OUT) $(INPUT)
+
+# XInput controller bridge, installed in the game folder as dinput.dll
+$(INPUT): input/XInputBridge.cxx
+	@mkdir -p build
+	$(CXX) -std=c++20 -O2 -Wno-delete-non-virtual-dtor -o $@ $< $(LDFLAGS) -Wl,--kill-at -luuid
 build/%.o: renderer/%.cxx $(wildcard renderer/*.hxx)
 	@mkdir -p build
 	$(CXX) $(CXXFLAGS) -c $< -o $@

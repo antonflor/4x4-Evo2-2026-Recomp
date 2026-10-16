@@ -8,13 +8,14 @@ REPO="$(cd "$(dirname "$0")/.." && pwd)"
 DISC="$1"; TEX="${2:-}"
 OUT="$REPO/installer/payload/game"
 [ -f "$DISC/4x42.exe" ] && [ -f "$DISC/data1.hdr" ] || { echo "not a 4x4 Evo 2 disc: $DISC"; exit 1; }
-[ -f "$REPO/build/evo2026.dll" ] || { echo "build the renderer first (make)"; exit 1; }
+[ -f "$REPO/build/evo2026.dll" ] && [ -f "$REPO/build/dinput.dll" ] || { echo "build first (make)"; exit 1; }
 rm -rf "$OUT"; mkdir -p "$OUT"
 python3 -I "$REPO/tools/is5_extract.py" "$DISC/data1.hdr" "$DISC/data1.cab" "$OUT"
 cp "$DISC/4x42.exe" "$OUT/"
 rm -rf "$OUT/drivers"                                   # 2001 driver-download pages
 mv "$OUT/Tridx8.dll" "$OUT/Tridx8.original.dll"
 cp "$REPO/build/evo2026.dll" "$OUT/tridx8.dll"
+cp "$REPO/build/dinput.dll" "$OUT/dinput.dll"                # XInput controller bridge
 cp "$REPO/installer/evo2026.ini" "$OUT/system/evo2026.ini"
 # METAL.INI: our renderer, 32-bit colour, music from MUSIC.POD (no CD)
 sed -i -e 's/^gameBPP=.*/gameBPP=32\r/' -e 's/^rendererDLLPath=.*/rendererDLLPath=tridx8.dll\r/' \

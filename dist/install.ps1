@@ -5,7 +5,7 @@ evo2026 installer for 4x4 Evo 2 (Build 139).
 
 What it does (all reversible with uninstall.ps1):
   * Backs up the game's Tridx8.dll to Tridx8.original.dll (once).
-  * Installs evo2026.dll as tridx8.dll. The game only accepts renderers by these exact
+  * Installs evo2026.dll as tridx8.dll, and the XInput controller bridge as dinput.dll. The game only accepts renderers by these exact
     file names, and the Direct3D 8 slot is the one evo2026 implements.
   * Sets system\METAL.INI to that renderer, 32-bit colour, 640x480 logical resolution
     (evo2026 draws that at your monitor's native resolution), and music from the game
@@ -109,6 +109,13 @@ if ((Test-Path $target) -and -not (Test-Path $backup)) {
 }
 Copy-Item $ourDll $target -Force
 Write-Host 'Installed evo2026 renderer as tridx8.dll'
+
+# XInput controller bridge (dinput.dll): modern pads with separate gas/brake triggers
+$bridge = Join-Path $here 'bin\dinput.dll'
+if (Test-Path $bridge) {
+    Copy-Item $bridge (Join-Path $GamePath 'dinput.dll') -Force
+    Write-Host 'Installed the controller bridge (dinput.dll)'
+}
 
 $systemDirs = @(Join-Path $GamePath 'system')
 $virtual = $GamePath -replace '^[A-Za-z]:\\', ''

@@ -10,6 +10,7 @@ The heart of it is **evo2026**, a drop-in Direct3D 9 renderer for the game. You 
 - true widescreen (Hor+), with the race HUD moved to the screen edges
 - 16× anisotropic filtering, vsync
 - a full HD texture pack: all 30,501 of the game's textures, AI-upscaled 4×
+- modern controller support: Xbox-style pads (Razer, 8BitDo, ...) with separate gas and brake triggers and pad-driven menus
 - texture tools to export, upscale and pack the game's textures yourself
 
 Built on the open-source [4x4e](https://github.com/americusmaximus/4x4e) Direct3D 9 renderer (MIT).
@@ -64,6 +65,7 @@ The original textures next to the AI-upscaled HD pack.
 | Path | What it is |
 |---|---|
 | `renderer/` | Renderer source (C++20, MinGW-w64 i686) |
+| `input/` | XInput controller bridge (`dinput.dll`) |
 | `tools/` | `is5_extract.py` (unpack the disc's InstallShield cabinet), `pod_textures.py` (export textures from the PODs), `upscale_textures.py` (Real-ESRGAN), `optimize_textures.py` (opaque textures to JPEG), `make_texture_pack.bat` (all three in one go), `make_payload.sh` (installer payload from your disc), `traceproxy/` (renderer call tracer) |
 | `dist/` | User kit: README, `install.ps1` / `uninstall.ps1` |
 | `docs/` | `FINDINGS.md` (reverse-engineering notes for the Evo 2 exe), release notes, the screenshots on this page |
@@ -77,7 +79,7 @@ Full documentation, settings and the texture workflow: [`dist/README.md`](dist/R
 make            # needs i686-w64-mingw32-g++ (Linux/WSL: apt install g++-mingw-w64-i686)
 ```
 
-Output: `build/evo2026.dll`, installed into the game folder as `tridx8.dll`.
+Output: `build/evo2026.dll`, installed into the game folder as `tridx8.dll`, and `build/dinput.dll`, the controller bridge.
 
 ## Releases
 

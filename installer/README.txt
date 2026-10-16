@@ -17,6 +17,7 @@ Already set up by the installer:
     music from the game files (no CD needed)
   - textures\: HD texture pack
   - 4x42.exe marked DPI-aware for your Windows account
+  - dinput.dll: controller support for modern (XInput) pads
 
 
 SETTINGS  (Start menu > 4x4 Evo 2 2026 > evo2026 Settings)
@@ -50,6 +51,23 @@ Direct3D8: evo2026 draws it at your monitor's resolution anyway.
 
 The intro movie and the legal screen run at 640x480 before the renderer
 starts, so they may briefly switch your monitor's mode. That's normal.
+
+
+CONTROLLERS
+-----------
+Xbox-style pads (Xbox, Razer, 8BitDo in X-input mode) work out of the box,
+with gas and brake on separate triggers. Either connected pad can drive.
+
+  Left stick  steer              RT / LT     gas / brake (reverse when stopped)
+  LB / RB     shift down / up    A           emergency brake
+  X           rescue             Y           change view
+  Back        look back          Start       pause menu
+  Stick clicks: headlights / horn
+  Menus: d-pad moves, A selects, B or Start goes back
+
+You can change the buttons in the game's Controller Setup. Settings such as
+StickDeadzone are in system\evo2026.ini (see evo2026\README.md). To turn the
+controller bridge off, delete dinput.dll from the game folder.
 
 
 MORE HD TEXTURES

@@ -12,6 +12,7 @@ It also adds:
 - vsync
 - 16× anisotropic filtering
 - an HD texture-replacement system (PNG or JPEG) with an AI upscaling pipeline, and a full HD pack for every track, truck and menu
+- modern controller support (Xbox-style XInput pads such as Razer and 8BitDo): separate gas and brake triggers, a ready-made button layout, and menus you can drive with the d-pad
 
 Built on the open-source [4x4e](https://github.com/americusmaximus/4x4e) reimplementation's Direct3D 9 renderer (MIT), by way of [4x4 Evolution: 2026 Edition](https://github.com/antonflor/4x4-Evo-2026-Recomp).
 
@@ -52,6 +53,8 @@ The settings live in `system\evo2026.ini`, section `[evo2026]`. (The game rewrit
 | `DumpTextures` | `0` | Save every texture the game uploads to `textures_dump\` |
 | `Trace` | `0` | Write a renderer call log to `system\evo2026.log` |
 | `LogFps` | `0` | Write the frame rate once a second to `system\evo2026-fps.log` |
+
+Controller settings are listed under [Controllers](#controllers).
 
 Game-side settings are in `system\METAL.INI`. Keep `gamePIXX=640`, `gamePIXY=480` and `gameBPP=32` under `[Graphics]`. `useRedBookAudio=0` under `[Game]` plays the music from the game files ("Wave" in the options), which you need when there's no disc in the drive.
 
@@ -98,12 +101,49 @@ That runs the three tools in order:
 
 A recent GeForce does the whole set in about 1.5 hours; already-finished textures are skipped on re-runs.
 
+## Controllers
+
+`dinput.dll` in the game folder is the evo2026 controller bridge. The game reads controllers through DirectInput 7. Modern pads use XInput, and through DirectInput Windows shows them as a generic joystick with both triggers on one shared axis, so you can't press gas and brake together. The bridge fixes that without touching the exe:
+
+- Keyboard, mouse, wheels and other joysticks go straight to Windows' own DirectInput, unchanged.
+- Every connected XInput pad (Xbox, Razer, 8BitDo in X-input mode, ...) shows up as one joystick, **XInput Controller (evo2026)**. Either pad can drive.
+- The pads' old HID view is hidden from the game, so it can't pick the broken one.
+- On the first start it switches the game to "Joystick/Analog Gamepad", writes the button layout below and assigns the pad in `control.txt`. After that, change anything you like in the game's Controller Setup; it won't be overwritten.
+
+| Control | Pad |
+|---|---|
+| Steer | Left stick |
+| Gas / brake (reverse when stopped) | RT / LT |
+| Shift down / up | LB / RB |
+| Emergency brake | A |
+| Rescue (helicopter) | X |
+| Change view | Y |
+| Look back | Back |
+| Pause menu | Start |
+| Headlights / horn | Left / right stick click |
+| Menus | D-pad to move, A to select, B or Start to go back |
+
+The menus only read the keyboard, so the bridge presses the arrow keys, Enter and Escape for the d-pad, A and B/Start (only while the game window is in front). In a race the d-pad therefore works like the arrow keys.
+
+Settings in `system\evo2026.ini`, section `[evo2026]`:
+
+| Key | Default | Meaning |
+|---|---|---|
+| `Controller` | `1` | `0` turns the bridge off (plain DirectInput) |
+| `HideXInputPads` | `1` | Hide the pads' HID joystick view from the game |
+| `StickDeadzone` | `10` | Stick dead zone in percent |
+| `PadMenuKeys` | `1` | D-pad / A / B / Start act as arrow keys, Enter and Escape |
+| `ControllerSetup` | `1` | Apply the gamepad setup on the next start (then set to `0`); set it back to `1` to restore the default layout |
+| `ControllerLog` | `0` | Write `system\evo2026-input.log` |
+
+To remove the bridge, delete `dinput.dll` from the game folder.
+
 ## Known limitations and next steps
 
 - **Menus are 4:3 layouts** in widescreen: the backgrounds are stretched to fill the screen and the menu text stays in the centre 4:3 area.
 - **Lighting is still the original per-vertex lighting.** The game also ships a hardware T&L renderer (`tridx8tl.dll`) that takes transforms, lights, stencil shadows, cube maps and render-to-texture calls. That's the way into modern lighting and reflections.
 - **Intro video, legal screen and the setup screen** are drawn by the game's own DirectDraw code before the renderer starts. The game switches the display to 640×480 for them, as it always did, so expect your monitor to change mode briefly at startup.
-- **Mouse/gamepad** are unchanged from the original (DirectInput). Modern-controller support is a planned add-on.
+- **No rumble yet** through the controller bridge.
 
 ## Troubleshooting
 
