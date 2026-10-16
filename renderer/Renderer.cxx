@@ -26,6 +26,9 @@ SOFTWARE.
 #include "Evo.hxx"
 #include "Mathematics.Basic.hxx"
 #include "Quit.hxx"
+#include "Perf.hxx"
+#include "EvoTextures.hxx"
+#include "Textures.hxx"
 
 #include <math.h>
 #include <stdio.h>
@@ -267,6 +270,7 @@ namespace Renderer::Module
             EVO_TRACE("DrawPolygon2 v=%u mode=%x tex=%s x=%.1f..%.1f y=%.1f..%.1f", vertexCount, (u32)mode, name, x0, x1, y0, y1);
         }
         if (!State.DX.Scene.IsActive) { return FALSE; }
+        EVO_PERF(Draw);
 
         auto am = mode;
 
@@ -404,6 +408,8 @@ namespace Renderer::Module
                 vertexCount, indexCount, (u32)mode, name, x0, x1, y0, y1, r0, r1);
         }
         if (!State.DX.Scene.IsActive) { return FALSE; }
+        EVO_PERF(Draw);
+        Evo::Perf::Add(Evo::Perf::DrawCalls);
 
         DX::SelectRendererMode(mode);
 
@@ -618,28 +624,16 @@ namespace Renderer::Module
         EVO_TRACE("Toggle");
         if (State.DX.DirectX.Device != NULL)
         {
+            DX::PumpHdTextures(6.0);
+            Evo::Textures::Frame();
+
+            EVO_PERF(Present);
             DX::DXC(State.DX.DirectX.Device->Present(NULL, NULL, NULL, NULL), "Unable to present back buffer.");
         }
 
-        // LogFps=1 in evo2026.ini: write the frame rate once a second to system\evo2026-fps.log
-        static s32 logFps = -1;
-        if (logFps < 0) { logFps = (s32)Evo::ReadSetting("LogFps", 0); }
-        if (logFps)
-        {
-            static u32 frames = 0, start = 0;
-            static FILE* log = NULL;
-            const u32 now = GetTickCount();
-            if (start == 0) { start = now; }
-            frames++;
-            if (now - start >= 1000)
-            {
-                if (log == NULL) { log = fopen(".\\system\\evo2026-fps.log", "w"); }
-                if (log != NULL) { fprintf(log, "%.1f fps\n", frames * 1000.0 / (now - start)); fflush(log); }
-                frames = 0; start = now;
-            }
-        }
-
+        Evo::Perf::Frame();
         return TRUE;
+
     }
 
     extern "C" u32 ToggleX(void) {

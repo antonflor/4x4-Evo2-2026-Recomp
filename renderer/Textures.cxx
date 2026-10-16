@@ -26,6 +26,7 @@ SOFTWARE.
 #include "Quit.hxx"
 #include "Textures.hxx"
 #include "EvoTextures.hxx"
+#include "Perf.hxx"
 
 using namespace Mathematics;
 using namespace Renderer::Module;
@@ -208,6 +209,7 @@ namespace DX
 
         if (!IsTextureActive(tex, dimensions, !transparent))
         {
+            EVO_PERF(Upload);
             CreateTexture(State.DX.Surfaces.Dimensions, !transparent, tex);
             UpdateTexture(indx);
         }
@@ -222,16 +224,45 @@ namespace DX
         UpdateTexture(&State.DX.Textures.Textures[indx]);
     }
 
+    // evo2026: an HD replacement finished decoding in the background; show it in `slot`.
+    void ApplyHdTexture(u32 slot, IDirect3DTexture9* texture)
+    {
+        if (slot >= MAX_TEXTURE_COUNT) { return; }
+        auto& d = State.DX.Textures.Textures[slot];
+        if (d.Texture == NULL || d.Texture == texture) { return; }
+
+        IDirect3DTexture9* old = d.Texture;
+        texture->AddRef();
+        d.Texture = texture;
+        d.IsReplaced = TRUE;
+
+        for (u32 x = 0; x < MAX_SURFACE_STAGE_COUNT; x++)
+        {
+            if (State.DX.Textures.Surfaces.Staging[x] == old) { State.DX.Textures.Surfaces.Staging[x] = texture; }
+            State.DX.Surfaces.Staging.Textures[x] = NULL; // force SetTexture on the next draw
+        }
+
+        old->Release();
+    }
+
+    void PumpHdTextures(const f64 budgetMs)
+    {
+        Evo::Textures::Pump(State.DX.DirectX.Device, ApplyHdTexture, budgetMs);
+    }
+
     void UpdateTexture(DXTexture* tex)
     {
         if (State.DX.Pixels.Palette.Indexes == NULL && State.DX.Pixels.Colors == NULL) { return; }
 
+        Evo::Perf::Add(Evo::Perf::Uploads);
+        PumpHdTextures(2.0);
         ConvertTexture();
 
         // evo2026: dump / swap in an HD replacement keyed by the texture's name + pixel CRC.
         {
+            const u32 slot = (u32)(tex - &State.DX.Textures.Textures[0]);
             auto replacement = Evo::Textures::Process(State.DX.DirectX.Device, tex->Name,
-                &State.DX.Pixels.Pixels[0], State.DX.Surfaces.Dimensions, tex->IsOpaque);
+                &State.DX.Pixels.Pixels[0], State.DX.Surfaces.Dimensions, tex->IsOpaque, slot);
 
             if (replacement != NULL)
             {
@@ -315,6 +346,7 @@ namespace DX
 
     u32 UpdateTexture(const RendererTexture* tex, const u32 dimensions, const BOOL transparent)
     {
+        EVO_PERF(Upload);
         if (!IsTextureActive(tex, dimensions, !transparent))
         {
             CreateTexture(State.DX.Surfaces.Dimensions, !transparent, tex);
@@ -448,6 +480,7 @@ namespace Renderer::Module
         }
 
         ZeroMemory(&State.DX.Textures.Textures, MAX_TEXTURE_COUNT * sizeof(DX::DXTexture));
+        for (u32 x = 0; x < MAX_TEXTURE_COUNT; x++) { Evo::Textures::Forget(x); }
 
         return TRUE;
     }

@@ -40,4 +40,6 @@ namespace DX
     void CreateTexture(const u32 dimensions, const BOOL opaque, const Renderers::RendererTexture* tex);
     void UpdateTexture(const u32 indx);
     void UpdateTexture(DXTexture* tex);
+    void ApplyHdTexture(u32 slot, IDirect3DTexture9* texture);
+    void PumpHdTextures(const f64 budgetMs);
 }
